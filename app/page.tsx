@@ -1,4 +1,4 @@
 export default function Home() {
 
-  return <p></p>
+  return <p>{process.env.DATABASE_HOST}</p>
 }
