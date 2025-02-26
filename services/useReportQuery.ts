@@ -17,8 +17,6 @@ export const FetchReportsAllQuery = (
     query,
   })
 
-  console.log(url);
-
   const resQuery = useQuery({
     queryKey: [url],
     queryFn: mockQuery,
@@ -36,6 +34,27 @@ export const MutationGenerateReport = ({
   onSuccess,
 }: MutationGenerateReportProps): UseMutationResult<any, Error, any> => {
   const url = `/reports/generate`;
+
+  const mutationFn = async (data: any) => {
+    return await mockMutation(url, data, "post" );
+  };
+
+  const resMutation = useMutation({
+    mutationKey: [url],
+    mutationFn: mutationFn,
+    onError,
+    onSuccess,
+  }) as UseMutationResult;
+
+  return resMutation;
+};
+
+
+export const MutationValidateCustomer = ({
+  onError,
+  onSuccess,
+}: MutationGenerateReportProps): UseMutationResult<any, Error, any> => {
+  const url = `/reports/validate-customer`;
 
   const mutationFn = async (data: any) => {
     return await mockMutation(url, data, "post" );

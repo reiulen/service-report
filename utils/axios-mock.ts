@@ -4,7 +4,7 @@ const createInstance = (baseURL: string) => {
   const instance = axios.create({
     baseURL,
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": "application/json",
     },
     withCredentials: false,
   });

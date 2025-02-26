@@ -10,10 +10,11 @@ import { IoArrowBack, IoArrowForward, IoSaveSharp } from "react-icons/io5";
 import { useFormStepStore } from "@/stores/formSteps/stores";
 import CustomerInformationFormStep from "./CustomerInformation/CustomerInformationFormStep";
 import { useForm } from "react-hook-form";
-import { FormStepData } from "@/types/formStep";
 import { useEffect } from "react";
-import LoadingDialog from "../Loadings/LoadingDialog";
 import { debounce } from "lodash";
+import { MutationValidateCustomer } from "@/services/useReportQuery";
+import { GenerateReportInput } from "@/types/report";
+import { useLoadingStore } from "@/stores/loading/store";
 
 const stepInfo = [
   "Customer Information",
@@ -25,6 +26,7 @@ const stepInfo = [
 
 const FormStep = () => {
   const { step, nextStep, prevStep, setData, isLoaded, data } = useFormStepStore();
+  const { setLoading, isLoading } = useLoadingStore();
 
   const {
     register,
@@ -33,10 +35,11 @@ const FormStep = () => {
     reset,
     formState: { errors },
     watch,
-  } = useForm<FormStepData>();
+    setError
+  } = useForm<GenerateReportInput>();
 
   useEffect(() => {
-    const debouncedSave = debounce((value: Partial<FormStepData>) => {
+    const debouncedSave = debounce((value: any) => {
       const updatedValues = Object.fromEntries(
         Object.entries(value).filter(([_, v]) => v !== "" && v !== undefined)
       );
@@ -45,23 +48,72 @@ const FormStep = () => {
       }
     }, 500);
 
-    const subscription = watch((value) => {
-      debouncedSave(value as Partial<FormStepData>);
+    const subscription: ReturnType<typeof watch> = watch((value: any) => {
+      debouncedSave(value);
     });
 
     return () => {
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
       debouncedSave.cancel();
     };
   }, [watch, setData, errors]);
 
-  const onNextStep = handleSubmit(() => {
-    nextStep();
+  const onNextStep = handleSubmit(async () => {
+    switch (step) {
+      case 0:
+        await handleNextStepCustomer();
+        break;
+      default:
+        nextStep();
+        break;
+    }
+  });
+
+  const onSubmit = handleSubmit(() => {
+    console.log("submit");
   });
 
   useEffect(() => {
     reset(data);
   }, [isLoaded, data, reset]);
+
+  const {
+    mutate: validateCustomer,
+  } = MutationValidateCustomer({
+    onError: (error: any) => {
+      const errorsData = error.response?.data?.error;
+      if (!errorsData) return;
+
+      Object.entries(errorsData).forEach(([key, messages]) => {
+        if (Array.isArray(messages) && messages.length > 0) {
+          setError(`customer.${key}` as `customer.${keyof GenerateReportInput["customer"]}`, {
+            type: "manual",
+            message: messages[0],
+          });
+        }
+      });
+      setLoading(false);
+    },
+    onSuccess: (data) => {
+      nextStep();
+      setLoading(false);
+    }
+  });
+
+  const handleNextStepCustomer = async () => {
+    const data = watch();
+    const { customer } = data;
+    const { name, email, phone, address } = customer;
+
+    setLoading(true);
+
+    validateCustomer({
+      name,
+      email,
+      phone,
+      address
+    });
+  }
 
   return (
     <Box bg="white" borderRadius={12} border="1px solid" borderColor="gray.200">
@@ -82,6 +134,7 @@ const FormStep = () => {
             switch (step) {
               case 0:
                 return <CustomerInformationFormStep
+                  handleNextStep={onNextStep}
                   register={register}
                   errors={errors}
                 />;
@@ -103,12 +156,17 @@ const FormStep = () => {
           <StepsNextTrigger asChild>
             {
               step === stepInfo.length - 1 ? (
-                <Button variant="solid" size="sm" onClick={nextStep}>
+                <Button variant="solid" size="sm" onClick={onSubmit}>
                   <IoSaveSharp />
                   Simpan &amp; Selesai
                 </Button>
               ) : (
-                <Button variant="outline" size="sm" onClick={onNextStep}>
+                <Button variant="outline" size="sm" 
+                loading={isLoading}
+                onClick={() => {
+                  if (isLoading) return;
+                  onNextStep();
+                }}>
                   Selanjutnya
                   <IoArrowForward />
                 </Button>
@@ -117,9 +175,6 @@ const FormStep = () => {
           </StepsNextTrigger>
         </Group>
       </StepsRoot>
-      {
-        !isLoaded && <LoadingDialog />
-      }
     </Box>
   );
 };

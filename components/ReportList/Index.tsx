@@ -19,7 +19,7 @@ const ReportList = () => {
   const [keyword, setKeyword] = useState<string>("");
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
-    pageSize: 3,
+    pageSize: 10,
   });
   const router = useRouter();
   const {
