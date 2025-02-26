@@ -57,6 +57,7 @@ const PartUsedFormStep = ({
       <VStack gap={3}>
         {fields.map((field, index) => (
           <SimpleGrid
+            key={index}
             gap={6}
             columns={{ md: 4 }}
             alignItems={"top"}

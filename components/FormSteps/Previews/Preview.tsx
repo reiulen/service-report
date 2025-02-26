@@ -1,5 +1,6 @@
 import { Box, Grid, GridItem, Heading, Text } from "@chakra-ui/react";
 import { GenerateReportInput } from "@/types/report";
+import React from "react";
 
 interface PreviewFormStepProps {
   formData: GenerateReportInput;
@@ -80,8 +81,8 @@ const PreviewFormStep = ({ formData }: PreviewFormStepProps) => {
         </GridItem>
         {formData.partsUsed && formData.partsUsed.length > 0 ? (
           formData.partsUsed.map((part, index) => (
-            <>
-              <GridItem key={index}>
+            <React.Fragment key={index}>
+              <GridItem>
                 <Text fontSize={14} fontWeight={"bold"}>Nama Part:</Text>
                 <Text>{part.name}</Text>
               </GridItem>
@@ -93,7 +94,7 @@ const PreviewFormStep = ({ formData }: PreviewFormStepProps) => {
                 <Text fontSize={14} fontWeight={"bold"}>Harga:</Text>
                 <Text>{part.price ? `Rp ${part.price}` : "-"}</Text>
               </GridItem>
-            </>
+            </React.Fragment>
           ))
         ) : (
           <GridItem colSpan={2}>

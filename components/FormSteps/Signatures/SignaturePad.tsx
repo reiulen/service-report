@@ -32,7 +32,12 @@ const SignaturePad = ({ onClear, onSave }: SignaturePadProps) => {
       <Box border="1px solid #ccc" p={4} borderRadius="md">
         {data?.signature ? (
           <Box>
-            <Image src={data?.signature} alt="Tanda Tangan" />
+            <Image 
+            width={700}
+            height={250}
+            src={data?.signature} 
+            alt="Tanda Tangan" 
+            />
           </Box>
         ) : (
           <SignatureCanvas
