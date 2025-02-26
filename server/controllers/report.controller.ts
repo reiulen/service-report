@@ -11,7 +11,7 @@ class ReportController {
 
       const reports = await reportService.getReports(db, query);
 
-      return c.json(successResponse("Reports fetched successfully", reports.response), 200);
+      return c.json(reports.response, 200);
     } catch (error) {
       return c.json(
         errorResponse(`${(error as Error).message || "An error occurred"}`),

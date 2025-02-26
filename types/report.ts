@@ -22,6 +22,38 @@ export type GenerateReportInput = {
   signature: string;
 };
 
+export type ReportData = {
+  id: string;
+  name: string;
+  address: string;
+  email?: string;
+  phone: string;
+  signature?: string;
+  service: {
+    id: string;
+    customer_id: string;
+    date: string;
+    type: string;
+    duration: number;
+  };
+  problem: {
+    id: string;
+    customer_id: string;
+    problem: string;
+    resolution?: string;
+  };
+  partsUsed: {
+    id: string;
+    customer_id: string;
+    name: string;
+    quantity: number;
+    price: number;
+  };
+  created_by_user_id?: string;
+  created_at: string;
+  updated_at?: string;
+};
+
 export type CustomerReportInput = {
   name: string;
   email?: string;

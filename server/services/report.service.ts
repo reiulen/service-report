@@ -3,6 +3,7 @@ import {
   PartUsedReportInput,
   GenerateReportInput,
   CustomerReport,
+  ReportData,
 } from "@/types/report";
 import { db, db as dbConnection } from "../db";
 import { errorResponse, successResponse } from "../utils/response.util";
@@ -16,8 +17,8 @@ import partUsedReportRepository from "../repositories/part-used-report.repositor
 
 class ReportService {
   async getReports(db: typeof dbConnection, query: any) {
-    const customerReports = await customerReportRepository.findAll(db, query);
-    const collectCustomerIds = customerReports.map((report) => report.id);
+    const [customerReports, totalData] = await customerReportRepository.findAll(db, query);
+    const collectCustomerIds = customerReports.map((report: ReportData) => report.id);
 
     const serviceReports = await serviceReportRepository.findWhere(
       db,
@@ -43,7 +44,7 @@ class ReportService {
       partUsedReports.map((report) => [report.customer_id, report])
     );
 
-    const reportsAll = customerReports.map((report) => {
+    const reportsAll = customerReports.map((report: ReportData) => {
       report.service = findService.get(report.id);
       report.problem = findProblem.get(report.id);
       report.partsUsed = findPartUsed.get(report.id);
@@ -52,7 +53,14 @@ class ReportService {
 
     return {
       status: true,
-      response: reportsAll,
+      response: {
+        data: reportsAll,
+        meta: {
+          totalData: totalData,
+          page: query.page ?? 1,
+          limit: query.limit ?? 10,
+        },
+      },
     };
   }
 

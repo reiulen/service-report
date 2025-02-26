@@ -16,35 +16,47 @@ class CustomerReportRepository {
     } = query;
 
     const conditions: string[] = [];
-    const params: any[] = [];
-
     const validColumns = ["name", "created_at"];
+
     if (keyword) {
-      conditions.push(`LOWER(name) LIKE ?`);
-      params.push(`%${keyword.toLowerCase()}%`);
+      const keywordLower = `%${keyword.toLowerCase()}%`;
+      conditions.push(
+        `(LOWER(name) LIKE '${keywordLower}' 
+            OR LOWER(address) LIKE '${keywordLower}' 
+            OR LOWER(phone) LIKE '${keywordLower}' 
+            OR LOWER(email) LIKE '${keywordLower}')`
+      );
     }
 
     if (date) {
-      conditions.push(`created_at = ?`);
-      params.push(date);
+      conditions.push(`DATE(created_at) = '${date}'`);
     }
 
-    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
-    const offset = page > 0 ? (page - 1) * limit : 0;
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
+    const orderByColumn = validColumns.includes(orderBy)
+      ? orderBy
+      : "created_at";
+    const orderDirectionValue =
+      orderDirection.toUpperCase() === "ASC" ? "ASC" : "DESC";
+    const offset = (page - 1) * limit;
 
-    const orderByColumn = validColumns.includes(orderBy) ? orderBy : "created_at";
-    const orderDirectionValue = orderDirection.toUpperCase() === "ASC" ? "ASC" : "DESC";
+    const totalDataQuery = `
+        SELECT COUNT(*) as total FROM customers ${whereClause}
+      `;
+    const [totalRows] = await db.execute(totalDataQuery);
+    const totalData = Array.isArray(totalRows) ? totalRows?.[0]?.total : 0;
 
     const customersQuery = `
-      SELECT * FROM customers
-      ${whereClause}
-      ORDER BY ${orderByColumn} ${orderDirectionValue}
-      LIMIT ${limit} OFFSET ${offset}
-    `;
-
+        SELECT * FROM customers 
+        ${whereClause}
+        ORDER BY ${orderByColumn} ${orderDirectionValue}
+        LIMIT ${limit} OFFSET ${offset}
+      `;
     const [rows] = await db.execute(customersQuery);
 
-    return Array.isArray(rows) ? rows : [];
+    return [rows, totalData];
   }
 
   async findOne(db: MySql2Database<any>, id: string) {

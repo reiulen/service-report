@@ -40,32 +40,39 @@ export const generateReportSchema = z.object({
 export const reportAllResponseSchema = z.object({
   status: z.boolean(),
   message: z.string(),
-  data: customerReportSchema.extend({
-    id: z.string(),
-    created_at: z.string(),
-    updated_at: z.string(),
-    created_by_user_id: z.string(),
-    service: serviceReportSchema.extend({
+  data: z.object({
+    data: customerReportSchema.extend({
       id: z.string(),
       created_at: z.string(),
       updated_at: z.string(),
       created_by_user_id: z.string(),
-    }),
-    problem: problemReportSchema.extend({
-      id: z.string(),
-      created_at: z.string(),
-      updated_at: z.string(),
-      created_by_user_id: z.string(),
-    }),
-    partsUsedcustomer: z.array(
-      partUsedReportSchema.extend({
+      service: serviceReportSchema.extend({
         id: z.string(),
         created_at: z.string(),
         updated_at: z.string(),
         created_by_user_id: z.string(),
-      })
-    ),
-  }),
+      }),
+      problem: problemReportSchema.extend({
+        id: z.string(),
+        created_at: z.string(),
+        updated_at: z.string(),
+        created_by_user_id: z.string(),
+      }),
+      partsUsedcustomer: z.array(
+        partUsedReportSchema.extend({
+          id: z.string(),
+          created_at: z.string(),
+          updated_at: z.string(),
+          created_by_user_id: z.string(),
+        })
+      ),
+    }),
+    meta: z.object({
+      total: z.number(),
+      page: z.number(),
+      limit: z.number(),
+    }),
+  })
 });
 
 export const generateReportResponseSchema = z.object({
