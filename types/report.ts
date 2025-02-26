@@ -11,8 +11,8 @@ export type GenerateReportInput = {
     duration: number;
   };
   problem: {
-    problem: string;
-    resolution: string;
+    problem?: string;
+    resolution?: string;
   };
   partsUsed: {
     name: string;

@@ -15,6 +15,8 @@ import { debounce } from "lodash";
 import { MutationValidateCustomer } from "@/services/useReportQuery";
 import { GenerateReportInput } from "@/types/report";
 import { useLoadingStore } from "@/stores/loading/store";
+import ServiceDetailsFormStep from "./ServiceDetails/ServiceDetailsFormStep";
+import ProblemFormStep from "./Problem/ProblemFormStep";
 
 const stepInfo = [
   "Customer Information",
@@ -35,11 +37,13 @@ const FormStep = () => {
     reset,
     formState: { errors },
     watch,
-    setError
+    setError,
+    control
   } = useForm<GenerateReportInput>();
 
   useEffect(() => {
     const debouncedSave = debounce((value: any) => {
+      console.log(value);
       const updatedValues = Object.fromEntries(
         Object.entries(value).filter(([_, v]) => v !== "" && v !== undefined)
       );
@@ -74,7 +78,13 @@ const FormStep = () => {
   });
 
   useEffect(() => {
-    reset(data);
+    reset({
+      ...data,
+      service: {
+        ...data?.service,
+        type: data?.service?.type?.value || "",
+      },
+    });
   }, [isLoaded, data, reset]);
 
   const {
@@ -134,10 +144,20 @@ const FormStep = () => {
             switch (step) {
               case 0:
                 return <CustomerInformationFormStep
-                  handleNextStep={onNextStep}
                   register={register}
                   errors={errors}
                 />;
+              case 1:
+                return <ServiceDetailsFormStep
+                  control={control}
+                  register={register}
+                  errors={errors}
+                />
+              case 2:
+                return <ProblemFormStep
+                  register={register}
+                  errors={errors}
+                />
             }
           })()}
         </Group>
@@ -161,12 +181,12 @@ const FormStep = () => {
                   Simpan &amp; Selesai
                 </Button>
               ) : (
-                <Button variant="outline" size="sm" 
-                loading={isLoading}
-                onClick={() => {
-                  if (isLoading) return;
-                  onNextStep();
-                }}>
+                <Button variant="outline" size="sm"
+                  loading={isLoading}
+                  onClick={() => {
+                    if (isLoading) return;
+                    onNextStep();
+                  }}>
                   Selanjutnya
                   <IoArrowForward />
                 </Button>
