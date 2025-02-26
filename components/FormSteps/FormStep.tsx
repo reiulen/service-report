@@ -18,6 +18,8 @@ import { useLoadingStore } from "@/stores/loading/store";
 import ServiceDetailsFormStep from "./ServiceDetails/ServiceDetailsFormStep";
 import ProblemFormStep from "./Problem/ProblemFormStep";
 import PartUsedFormStep from "./PartsUsed/PartUsedFormStep";
+import SignatureFormStep from "./Signatures/SiganatureFormStep";
+import PreviewFormStep from "./Previews/Preview";
 
 const stepInfo = [
   "Customer Information",
@@ -25,6 +27,7 @@ const stepInfo = [
   "Problem Description & Resolution",
   "Parts Used",
   "Signatures",
+  "Preview",
 ];
 
 const FormStep = () => {
@@ -35,7 +38,7 @@ const FormStep = () => {
   const {
     register,
     handleSubmit,
-    clearErrors,
+    setValue,
     reset,
     formState: { errors },
     watch,
@@ -78,6 +81,9 @@ const FormStep = () => {
     switch (step) {
       case 0:
         await handleNextStepCustomer();
+        break;
+      case 4:
+        handleNextStepSignature();
         break;
       default:
         nextStep();
@@ -139,6 +145,17 @@ const FormStep = () => {
     });
   };
 
+  const handleNextStepSignature = () => {
+    if (!data?.signature) {
+      setError("signature", {
+        type: "manual",
+        message: "Tanda tangan tidak boleh kosong",
+      });
+      return;
+    }
+    nextStep();
+  }
+
   return (
     <Box bg="white" borderRadius={12} border="1px solid" borderColor="gray.200">
       <StepsRoot step={step} count={stepInfo.length}>
@@ -181,6 +198,12 @@ const FormStep = () => {
                     errors={errors}
                   />
                 );
+              case 4:
+                return <SignatureFormStep setValue={setValue} errors={errors} />;
+              case 5:
+                return <PreviewFormStep formData={data} />;
+              default:
+                return <VStack>Step {step} not found</VStack>;
             }
           })()}
         </Group>
