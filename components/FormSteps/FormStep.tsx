@@ -239,8 +239,7 @@ const FormStep = () => {
             }
           })()}
         </Group>
-
-        {step < stepInfo.length - 1 && (
+        {(step <= stepInfo.length - 1) && (
           <Group p={8} justifyContent="end">
             {step > 0 && (
               <StepsPrevTrigger asChild>

@@ -59,6 +59,7 @@ export type CustomerReportInput = {
   email?: string;
   phone: string;
   address: string;
+  pdf_generated?: string;
   signature?: string;
   created_by_user_id?: string;
 };

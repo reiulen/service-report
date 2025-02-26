@@ -5,16 +5,18 @@ import {
   CustomerReport,
   ReportData,
 } from "@/types/report";
-import { db, db as dbConnection } from "../db";
+import { db as dbConnection } from "../db";
 import { errorResponse, successResponse } from "../utils/response.util";
 import { eq, or } from "drizzle-orm";
 import { customers } from "../db/schema";
-import { customerReportSchema } from "../schemas/report.schema";
 import customerReportRepository from "../repositories/customer-report.repository";
 import serviceReportRepository from "../repositories/service-report.repository";
 import problemReportRepository from "../repositories/problem-report.repository";
 import partUsedReportRepository from "../repositories/part-used-report.repository";
 import { saveBase64Image } from "../utils/helpers/helper";
+import { PDFDocument, rgb } from "pdf-lib";
+import path from "path";
+import fs from 'fs';
 
 class ReportService {
   async getReports(db: typeof dbConnection, query: any) {
@@ -103,12 +105,18 @@ class ReportService {
   async generateReport(db: typeof dbConnection, body: GenerateReportInput) {
     return db.transaction(async (trx) => {
       const directorySignature = "uploads";
-      const filenameSignature = `signature-${Math.random().toString(36).substring(2, 15)}`;
+      const filenameSignature = `signature-${Math.random()
+        .toString(36)
+        .substring(2, 15)}`;
       let signaturePath = null;
       if (body.signature) {
-          signaturePath = await saveBase64Image(body.signature, directorySignature, filenameSignature)
-          signaturePath = `/${directorySignature}/${filenameSignature}.png`;
-          if (!signaturePath) throw new Error("Failed to save signature");
+        signaturePath = await saveBase64Image(
+          body.signature,
+          directorySignature,
+          filenameSignature
+        );
+        signaturePath = `/${directorySignature}/${filenameSignature}.png`;
+        if (!signaturePath) throw new Error("Failed to save signature");
       }
 
       const customerReport =
@@ -156,6 +164,18 @@ class ReportService {
           throw new Error("Failed to create part used report");
       }
 
+      const pdfGenerated = await this.generateReportPDF(body);
+      if (!pdfGenerated) throw new Error("Failed to generate PDF");
+      
+      const updateCustomer = await customerReportRepository.updateCustomerReport(
+        trx,
+        customerReport.id,
+        {
+          pdf_generated: pdfGenerated,
+        }
+      );
+      if (!updateCustomer) throw new Error("Failed to update customer report");
+
       return {
         status: true,
         response: {
@@ -166,6 +186,101 @@ class ReportService {
         },
       };
     });
+  }
+
+  async generateReportPDF(data: GenerateReportInput) {
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([600, 800]);
+    const { width, height } = page.getSize();
+    const fontSize = 12;
+    let yPosition = height - 50;
+
+    const drawText = (text, x, y, bold = false) => {
+      page.drawText(text, {
+        x,
+        y,
+        size: fontSize,
+        color: rgb(0, 0, 0),
+      });
+    };
+
+    drawText("Informasi Pelanggan", 50, yPosition);
+    yPosition -= 20;
+    drawText(`Nama: ${data.customer.name}`, 50, yPosition);
+    yPosition -= 20;
+    drawText(`Alamat: ${data.customer.address}`, 50, yPosition);
+    yPosition -= 20;
+    drawText(`Email: ${data.customer.email || "-"}`, 50, yPosition);
+    yPosition -= 20;
+    drawText(`Telepon: ${data.customer.phone}`, 50, yPosition);
+    yPosition -= 30;
+
+    drawText("Detail Layanan", 50, yPosition);
+    yPosition -= 20;
+    drawText(`Tanggal: ${data.service.date}`, 50, yPosition);
+    yPosition -= 20;
+    drawText(`Tipe Layanan: ${data.service.type}`, 50, yPosition);
+    yPosition -= 20;
+    drawText(`Durasi: ${data.service.duration} jam`, 50, yPosition);
+    yPosition -= 30;
+
+    drawText("Deskripsi Masalah & Resolusi", 50, yPosition);
+    yPosition -= 20;
+    drawText(`Masalah: ${data.problem.problem || "-"}`, 50, yPosition);
+    yPosition -= 20;
+    drawText(`Solusi: ${data.problem.resolution || "-"}`, 50, yPosition);
+    yPosition -= 30;
+
+    drawText("Bagian yang Digunakan", 50, yPosition);
+    yPosition -= 20;
+    if (data.partsUsed && data.partsUsed.length > 0) {
+      data.partsUsed.forEach((part) => {
+        drawText(`Nama Part: ${part.name}`, 50, yPosition);
+        yPosition -= 20;
+        drawText(`Jumlah: ${part.quantity}`, 50, yPosition);
+        yPosition -= 20;
+        drawText(
+          `Harga: ${part.price ? `Rp ${part.price}` : "-"}`,
+          50,
+          yPosition
+        );
+        yPosition -= 30;
+      });
+    } else {
+      drawText("Tidak ada part digunakan", 50, yPosition);
+      yPosition -= 20;
+    }
+    yPosition -= 30;
+
+    drawText("Tanda Tangan", 50, yPosition);
+    yPosition -= 20;
+    if (data.signature) {
+      const signatureImage = await pdfDoc.embedPng(data.signature);
+      page.drawImage(signatureImage, {
+        x: 50,
+        y: yPosition - 50,
+        width: 100,
+        height: 50,
+      });
+    } else {
+      drawText("Tidak ada tanda tangan", 50, yPosition);
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    
+    const directory = 'uploads/reports';
+    const directoryPublic = `public/${directory}`;
+    const filename = `report-${Math.random().toString(36).substring(2, 15)}.pdf`;
+    const filePathFull = path.join(process.cwd(), directoryPublic, filename);
+    const filePath = `/${directory}/${filename}`;
+
+    if (!fs.existsSync(directoryPublic)) {
+      fs.mkdirSync(directoryPublic, { recursive: true });
+    }
+
+    fs.writeFileSync(filePathFull, pdfBytes);
+
+    return filePath
   }
 }
 

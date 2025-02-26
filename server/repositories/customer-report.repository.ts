@@ -100,23 +100,27 @@ class CustomerReportRepository {
   async updateCustomerReport(
     db: MySql2Database<any>,
     id: string,
-    data: CustomerReportInput
+    data: Partial<CustomerReportInput | any>
   ): Promise<RowDataPacket | null> {
     const updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
-
-    await db.execute(
-      `UPDATE customers SET 
-        name = '${data.name}',
-        address = '${data.address}',
-        phone = '${data.phone ?? ""}',
-        email = '${data.email}',
-        signature = '${data.signature ?? ""}',
-        updated_at = '${updated_at}'
-        WHERE id = '${id}'`
-    );
-
-    const result = await this.findOne(db, id);
-    return result ?? null;
+    
+    const updates: string[] = [];
+    
+    for (const key in data) {
+      if (data[key] !== undefined) {
+        updates.push(`${key} = '${data[key]}'`);
+      }
+    }
+    
+    if (updates.length === 0) return this.findOne(db, id);
+    
+    updates.push(`updated_at = '${updated_at}'`);
+    
+    const query = `UPDATE customers SET ${updates.join(", ")} WHERE id = '${id}'`;
+    
+    await db.execute(query);
+    
+    return this.findOne(db, id);
   }
 }
 

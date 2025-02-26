@@ -33,7 +33,7 @@ const ReportList = () => {
     page: pagination.page,
     limit: pagination.pageSize,
     keyword,
-  });
+  })
 
   const columns = [
     { header: "Nama Customer", accessor: "name" },
@@ -46,6 +46,10 @@ const ReportList = () => {
       accessor: "actions",
       render: (row) => (
         <Button 
+        as={Link}
+        href={row.pdf_generated ?? ""}
+        _target={"blank"}
+        disabled={!row.pdf_generated}
         size="xs" 
         colorScheme="red">
           <Icon
@@ -54,7 +58,7 @@ const ReportList = () => {
             mr={2}
             boxSize={4}
           />
-          Download PDF
+          Lihat PDF
       </Button>
       ),
     },
