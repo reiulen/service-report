@@ -14,6 +14,7 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
+import { ElementType } from "react";
 import {
   Control,
   FieldErrors,
@@ -119,7 +120,7 @@ const PartUsedFormStep = ({
                   remove(index);
                 }}
               >
-                <Icon as={BiTrash} color={"red.500"} />
+                <Icon as={BiTrash as ElementType} color={"red.500"} />
               </Button>
             </GridItem>
           </SimpleGrid>
@@ -137,7 +138,7 @@ const PartUsedFormStep = ({
               size="sm"
               mt={4}
             >
-              <Icon as={BiPlusCircle} mr={2} />
+              <Icon as={BiPlusCircle as ElementType} mr={2} />
               Tambah Bagian
             </Button>
           </Box>
@@ -152,7 +153,7 @@ const PartUsedFormStep = ({
           size="sm"
           mt={6}
         >
-          <Icon as={BiPlusCircle} mr={2} />
+          <Icon as={BiPlusCircle as ElementType} mr={2} />
           Tambah Bagian
         </Button>
       )}

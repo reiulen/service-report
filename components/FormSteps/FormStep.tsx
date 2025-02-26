@@ -1,4 +1,4 @@
-import { Box, Button, Group, VStack } from "@chakra-ui/react";
+import { Box, Button, Group, Icon, VStack } from "@chakra-ui/react";
 import {
   StepsItem,
   StepsList,
@@ -10,7 +10,7 @@ import { IoArrowBack, IoArrowForward, IoSaveSharp } from "react-icons/io5";
 import { useFormStepStore } from "@/stores/formSteps/stores";
 import CustomerInformationFormStep from "./CustomerInformation/CustomerInformationFormStep";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { ElementType, useEffect } from "react";
 import { debounce } from "lodash";
 import {
   MutationGenerateReport,
@@ -244,7 +244,7 @@ const FormStep = () => {
             {step > 0 && (
               <StepsPrevTrigger asChild>
                 <Button variant="outline" size="sm" onClick={prevStep}>
-                  <IoArrowBack />
+                  <Icon as={IoArrowBack as ElementType} />
                   Sebelumnya
                 </Button>
               </StepsPrevTrigger>
@@ -257,7 +257,7 @@ const FormStep = () => {
                   loading={isLoading}
                   onClick={onSubmit}
                 >
-                  <IoSaveSharp />
+                  <Icon as={IoSaveSharp as ElementType} />
                   Simpan Laporan
                 </Button>
               ) : (
@@ -271,7 +271,7 @@ const FormStep = () => {
                   }}
                 >
                   Selanjutnya
-                  <IoArrowForward />
+                  <Icon as={IoArrowForward as ElementType} />
                 </Button>
               )}
             </StepsNextTrigger>

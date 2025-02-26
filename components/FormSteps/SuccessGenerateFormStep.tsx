@@ -1,6 +1,7 @@
 import { useFormStepStore } from "@/stores/formSteps/stores";
 import { Box, Button, Flex, Icon } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
+import { ElementType } from "react";
 import { BiPlusCircle } from "react-icons/bi";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { IoHomeOutline } from "react-icons/io5";
@@ -38,7 +39,7 @@ const SuccessGenerateFormStep = () => {
               variant="outline"
               size="lg"
             >
-              <Icon as={IoHomeOutline} fontSize="xl" color="black" />
+              <Icon as={IoHomeOutline as ElementType} fontSize="xl" color="black" />
               Kembali ke Beranda
             </Button>
             <Button
@@ -48,7 +49,7 @@ const SuccessGenerateFormStep = () => {
               size="lg"
               ml={4}
             >
-              <Icon as={BiPlusCircle} fontSize="xl" color="white" />
+              <Icon as={BiPlusCircle as ElementType} fontSize="xl" color="white" />
               Buat Laporan Baru
             </Button>
           </Flex>

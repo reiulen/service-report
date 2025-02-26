@@ -1,14 +1,7 @@
 "use client";
 import { FetchReportsAllQuery } from "@/services/useReportQuery";
-import {
-  Box,
-  Button,
-  Flex,
-  Icon,
-  Input,
-  Text,
-} from "@chakra-ui/react";
-import { useState } from "react";
+import { Box, Button, Flex, Icon, Input, Text } from "@chakra-ui/react";
+import { ElementType, useState } from "react";
 import Table from "@/components/ui/Tables/Table";
 import TableFooter from "../ui/Tables/TableFooter";
 import { InputGroup } from "../ui/input-group";
@@ -33,7 +26,7 @@ const ReportList = () => {
     page: pagination.page,
     limit: pagination.pageSize,
     keyword,
-  })
+  });
 
   const columns = [
     { header: "Nama Customer", accessor: "name" },
@@ -45,21 +38,17 @@ const ReportList = () => {
       header: "Aksi",
       accessor: "actions",
       render: (row) => (
-        <Button 
-        as={Link}
-        href={row.pdf_generated ?? ""}
-        _target={"blank"}
-        disabled={!row.pdf_generated}
-        size="xs" 
-        colorScheme="red">
-          <Icon
-            as={FaFilePdf}
-            color={"white"}
-            mr={2}
-            boxSize={4}
-          />
+        <Button
+          as={Link}
+          href={row.pdf_generated ?? ""}
+          _target={"blank"}
+          disabled={!row.pdf_generated}
+          size="xs"
+          colorScheme="red"
+        >
+          <Icon as={FaFilePdf} color={"white"} mr={2} boxSize={4} />
           Lihat PDF
-      </Button>
+        </Button>
       ),
     },
   ];
@@ -74,7 +63,12 @@ const ReportList = () => {
   return (
     <>
       <Flex justifyContent="space-between" mb={3} alignItems={"center"}>
-        <InputGroup maxW={"xs"} flex="1" startElement={<LuSearch />} bg="white">
+        <InputGroup
+          maxW={"xs"}
+          flex="1"
+          startElement={<Icon as={LuSearch as ElementType} />}
+          bg="white"
+        >
           <Input placeholder="Cari laporan" onChange={onChangeKeyword} />
         </InputGroup>
         <Button
@@ -85,7 +79,7 @@ const ReportList = () => {
           borderRadius={8}
           boxShadow="xs"
         >
-          <Icon as={BiPlusCircle} color={"white"} />
+          <Icon as={BiPlusCircle as ElementType} color={"white"} />
           Generate Report
         </Button>
       </Flex>

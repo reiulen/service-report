@@ -7,6 +7,7 @@ import {
   GridItem,
   Group,
   Heading,
+  Icon,
   Input,
   InputAddon,
   NumberInputRoot,
@@ -27,6 +28,7 @@ import {
   SelectValueText,
 } from "@/components/ui/select";
 import { NumberInputField } from "@/components/ui/number-input";
+import { ElementType } from "react";
 
 interface ServiceDetailsFormStepProps {
   control: Control<GenerateReportInput>;
@@ -34,19 +36,9 @@ interface ServiceDetailsFormStepProps {
   errors: FieldErrors<GenerateReportInput>;
 }
 
-type ValueServiceType = {
-    items: {
-        label: string;
-        value: string;
-    }[]
-    value: string[];
-}
-
 type ServiceType = {
-  items: {
-    label: string;
-    value: string;
-  };
+  label: string;
+  value: string;
 };
 
 const serviceType = createListCollection<ServiceType>({
@@ -64,7 +56,7 @@ const ServiceDetailsFormStep = ({
   errors,
 }: ServiceDetailsFormStepProps) => {
   return (
-    <Box width={"full"}>
+    <Box width="full">
       <Heading
         _after={{
           content: '""',
@@ -79,7 +71,7 @@ const ServiceDetailsFormStep = ({
       >
         2. Detail Layanan
       </Heading>
-      <SimpleGrid gap={6} columns={{ md: 3 }} alignItems={"top"} width={"full"}>
+      <SimpleGrid gap={6} columns={{ md: 3 }} alignItems="top" width="full">
         <GridItem colSpan={1}>
           <Field
             label="Tanggal"
@@ -87,7 +79,11 @@ const ServiceDetailsFormStep = ({
             errorText={errors.service?.date?.message}
             required
           >
-            <InputGroup flex="1" startElement={<BiCalendar />} w={"full"}>
+            <InputGroup
+              flex="1"
+              startElement={<Icon as={BiCalendar as ElementType} />}
+              w="full"
+            >
               <Input
                 type="date"
                 {...register("service.date", {
@@ -107,10 +103,7 @@ const ServiceDetailsFormStep = ({
             name="service.type"
             control={control}
             rules={{ required: "Jenis layanan harus dipilih" }}
-            render={({
-              field: { onChange, onBlur, value, name, ref },
-              fieldState: { error },
-            }) => (
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
               <Field
                 label="Jenis Layanan"
                 invalid={!!error}
@@ -119,16 +112,14 @@ const ServiceDetailsFormStep = ({
               >
                 <SelectRoot
                   collection={serviceType}
-                  value={[`${value}`]}
-                  onValueChange={(value: ValueServiceType) => {
-                    onChange(value.value[0]);
-                  }}
+                  value={value ? [`${value}`] : []}
+                  onValueChange={(newValue) => onChange(newValue.value[0])}
                 >
                   <SelectTrigger>
                     <SelectValueText placeholder="Pilih Tipe" />
                   </SelectTrigger>
                   <SelectContent>
-                    {serviceType.items.map((item: ServiceType['items']) => (
+                    {serviceType.items.map((item) => (
                       <SelectItem item={item} key={item.value}>
                         {item.label}
                       </SelectItem>
@@ -146,8 +137,8 @@ const ServiceDetailsFormStep = ({
             errorText={errors.service?.duration?.message}
             required
           >
-            <Group attached w={"full"}>
-              <NumberInputRoot w={"full"}>
+            <Group attached w="full">
+              <NumberInputRoot w="full">
                 <NumberInputField
                   {...register("service.duration", {
                     required: "Durasi harus diisi",

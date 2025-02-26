@@ -4,6 +4,7 @@ import FormStep from "@/components/FormSteps/FormStep";
 import { IoIosArrowBack } from "react-icons/io";
 import { useRouter } from 'next/navigation';
 import { useFormStepStore } from "@/stores/formSteps/stores";
+import { ElementType } from "react";
 
 export default function ServiceReportGenerator() {
     const router = useRouter();
@@ -31,7 +32,7 @@ export default function ServiceReportGenerator() {
                             handleBack();
                         }}
                     >
-                        <Icon as={IoIosArrowBack} color={"black"} />
+                        <Icon as={IoIosArrowBack as ElementType} color={"black"} />
                     </Button>
                     <Text as="div" fontSize={16} fontWeight={800}>
                         Kembali
