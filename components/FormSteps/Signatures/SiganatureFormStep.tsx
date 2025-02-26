@@ -28,10 +28,13 @@ const SignatureFormStep = ({ setValue, errors }: SignatureFormStepProps) => {
         5. Tanda Tangan
       </Heading>
       <Box maxW="3xl" m="auto" p={8}>
+        {errors.signature && (
+          <Box color="red.500" fontSize="sm" mb={2}>
+            {errors.signature.message}
+          </Box>
+        )}
         <SignaturePad
-          onClear={() => {
-        
-          }}
+          onClear={() => {}}
           onSave={(result) => {
             setValue("signature", result);
           }}

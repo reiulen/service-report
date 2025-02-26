@@ -6,12 +6,16 @@ import {
 interface TableProps {
   isLoading: boolean;
   data: any[];
-  columns: { header: string; accessor: string }[];
+  columns: { 
+    header: string; 
+    accessor: string 
+    render?: (row: any) => JSX.Element
+  }[];
 }
 
 const Table: React.FC<TableProps> = ({ isLoading, data, columns }) => {
   return (
-    <ChakraTable.Root variant="outline">
+    <ChakraTable.Root variant="outline" w={"full"}>
       <ChakraTable.Header>
         <ChakraTable.Row>
           {columns.map((column) => (
@@ -37,9 +41,12 @@ const Table: React.FC<TableProps> = ({ isLoading, data, columns }) => {
             <ChakraTable.Row key={index}>
               {columns.map((column) => (
                 <ChakraTable.Cell key={column.accessor} p={4}>
-                  {column.accessor
-                    .split(".")
-                    .reduce((acc, part) => acc?.[part], item)}
+                  {column.render
+                      ? column.render(item)
+                      : column.accessor
+                          .toString()
+                          .split(".")
+                          .reduce((acc: any, part) => acc?.[part], item)}
                 </ChakraTable.Cell>
               ))}
             </ChakraTable.Row>

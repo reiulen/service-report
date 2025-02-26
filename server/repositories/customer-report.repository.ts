@@ -96,6 +96,28 @@ class CustomerReportRepository {
     const result = await this.findOne(db, uuid);
     return result ?? null;
   }
+
+  async updateCustomerReport(
+    db: MySql2Database<any>,
+    id: string,
+    data: CustomerReportInput
+  ): Promise<RowDataPacket | null> {
+    const updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    await db.execute(
+      `UPDATE customers SET 
+        name = '${data.name}',
+        address = '${data.address}',
+        phone = '${data.phone ?? ""}',
+        email = '${data.email}',
+        signature = '${data.signature ?? ""}',
+        updated_at = '${updated_at}'
+        WHERE id = '${id}'`
+    );
+
+    const result = await this.findOne(db, id);
+    return result ?? null;
+  }
 }
 
 export default new CustomerReportRepository();

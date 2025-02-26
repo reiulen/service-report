@@ -33,6 +33,15 @@ interface ServiceDetailsFormStepProps {
   register: UseFormRegister<GenerateReportInput>;
   errors: FieldErrors<GenerateReportInput>;
 }
+
+type ValueServiceType = {
+    items: {
+        label: string;
+        value: string;
+    }[]
+    value: string[];
+}
+
 type ServiceType = {
   items: {
     label: string;
@@ -110,16 +119,18 @@ const ServiceDetailsFormStep = ({
               >
                 <SelectRoot
                   collection={serviceType}
-                  value={value.length ? [`${value}`] : value}
-                  onValueChange={onChange}
+                  value={[`${value}`]}
+                  onValueChange={(value: ValueServiceType) => {
+                    onChange(value.value[0]);
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValueText placeholder="Pilih Tipe" />
                   </SelectTrigger>
                   <SelectContent>
-                    {serviceType.items.map((movie) => (
-                      <SelectItem item={movie} key={movie.value}>
-                        {movie.label}
+                    {serviceType.items.map((item: ServiceType['items']) => (
+                      <SelectItem item={item} key={item.value}>
+                        {item.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -140,6 +151,7 @@ const ServiceDetailsFormStep = ({
                 <NumberInputField
                   {...register("service.duration", {
                     required: "Durasi harus diisi",
+                    valueAsNumber: true,
                   })}
                 />
               </NumberInputRoot>

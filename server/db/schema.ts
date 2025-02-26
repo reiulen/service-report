@@ -15,6 +15,7 @@ export const customers = mysqlTable("customers", {
     address: text("address"),
     phone: varchar("phone", { length: 50 }),
     email: varchar("email", { length: 255 }),
+    pdf_generated: varchar("pdf_generated", { length: 255 }),
     signature: varchar("signature", { length: 255 }),
     created_by_user_id: varchar("created_by_user_id", { length: 36 }),
     created_at: datetime("created_at"),
@@ -52,3 +53,4 @@ export const partUsedReports = mysqlTable("part_used_reports", {
     created_at: datetime("created_at"),
     updated_at: datetime("updated_at"),
 });
+

@@ -52,7 +52,7 @@ const PreviewFormStep = ({ formData }: PreviewFormStepProps) => {
         </GridItem>
         <GridItem>
           <Text fontSize={14} fontWeight={"bold"}>Durasi:</Text>
-          <Text>{formData.service.duration} jam</Text>
+          <Text>{formData.service.duration} hari</Text>
         </GridItem>
 
         <GridItem colSpan={2}>
@@ -97,7 +97,7 @@ const PreviewFormStep = ({ formData }: PreviewFormStepProps) => {
           ))
         ) : (
           <GridItem colSpan={2}>
-            <Text>- Tidak ada part digunakan -</Text>
+            <Text color={"red.500"}>Tidak ada part digunakan</Text>
           </GridItem>
         )}
 

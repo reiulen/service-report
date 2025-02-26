@@ -27,8 +27,10 @@ interface FormStepState {
   step: number;
   completedSteps: Set<number>;
   data: GenerateReportInput;
-  isLoaded: boolean;
+  isLoading: boolean;
+  isLoadedStorage: boolean;
   setLoading: (loading: boolean) => void;
+  setLoadedStorage: (loading: boolean) => void;
   setData: (data: Partial<GenerateReportInput>) => void;
   resetData: () => void;
   setStep: (step: number) => void;
@@ -43,8 +45,10 @@ export const useFormStepStore = create<FormStepState>()(
       step: 0,
       completedSteps: new Set(),
       data: defaultState,
-      isLoaded: false,
-      setLoading: (loading) => set({ isLoaded: loading }),
+      isLoading: false,
+      isLoadedStorage: false,
+      setLoading: (loading) => set({ isLoading: loading }),
+      setLoadedStorage: (loading) => set({ isLoadedStorage: loading }),
       setData: (data) =>
         set((state) => ({
           data: {
@@ -52,7 +56,7 @@ export const useFormStepStore = create<FormStepState>()(
             ...data,
           },
         })),
-      resetData: () => set({ data: defaultState }),
+      resetData: () => set({ data: defaultState, step: 0 }),
       setStep: (step) => set({ step }),
       nextStep: () => set((state) => ({ step: state.step + 1 })),
       prevStep: () => set((state) => ({ step: Math.max(state.step - 1, 0) })),
@@ -62,7 +66,7 @@ export const useFormStepStore = create<FormStepState>()(
       name: "service-form-steps",
       version: 1,
       onRehydrateStorage: () => (state) => {
-        if (state) state.setLoading(true);
+        if (state) state.setLoadedStorage(true);
       },
     }
   )

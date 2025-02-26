@@ -86,6 +86,7 @@ const PartUsedFormStep = ({
                   <NumberInputField
                     {...register(`partsUsed.${index}.quantity`, {
                       required: "Jumlah harus diisi",
+                      valueAsNumber: true,
                     })}
                   />
                 </NumberInputRoot>
@@ -102,6 +103,7 @@ const PartUsedFormStep = ({
                   <NumberInputField
                     {...register(`partsUsed.${index}.price`, {
                       required: "Harga harus diisi",
+                      valueAsNumber: true,
                     })}
                   />
                 </NumberInputRoot>

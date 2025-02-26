@@ -1,7 +1,13 @@
 "use client";
 import { FetchReportsAllQuery } from "@/services/useReportQuery";
-import { Box, Button, Flex, Icon, Input, Skeleton, Text } from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
+import {
+  Box,
+  Button,
+  Flex,
+  Icon,
+  Input,
+  Text,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import Table from "@/components/ui/Tables/Table";
 import TableFooter from "../ui/Tables/TableFooter";
@@ -9,6 +15,8 @@ import { InputGroup } from "../ui/input-group";
 import { LuSearch } from "react-icons/lu";
 import { BiPlusCircle } from "react-icons/bi";
 import { debounce } from "lodash";
+import Link from "next/link";
+import { FaFilePdf } from "react-icons/fa6";
 
 type Pagination = {
   page: number;
@@ -21,11 +29,7 @@ const ReportList = () => {
     page: 1,
     pageSize: 10,
   });
-  const router = useRouter();
-  const {
-    data: reports,
-    isLoading,
-  } = FetchReportsAllQuery({
+  const { data: reports, isLoading } = FetchReportsAllQuery({
     page: pagination.page,
     limit: pagination.pageSize,
     keyword,
@@ -37,12 +41,31 @@ const ReportList = () => {
     { header: "No Handphone Customer", accessor: "phone" },
     { header: "Tipe Servis", accessor: "service.type" },
     { header: "Dibuat Pada", accessor: "created_at" },
-    { header: "Aksi", accessor: "actions" },
+    {
+      header: "Aksi",
+      accessor: "actions",
+      render: (row) => (
+        <Button 
+        size="xs" 
+        colorScheme="red">
+          <Icon
+            as={FaFilePdf}
+            color={"white"}
+            mr={2}
+            boxSize={4}
+          />
+          Download PDF
+      </Button>
+      ),
+    },
   ];
 
-  const onChangeKeyword = debounce((event: React.ChangeEvent<HTMLInputElement>) => {
-    setKeyword(event.target.value);
-  }, 300);
+  const onChangeKeyword = debounce(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setKeyword(event.target.value);
+    },
+    300
+  );
 
   return (
     <>
@@ -51,13 +74,12 @@ const ReportList = () => {
           <Input placeholder="Cari laporan" onChange={onChangeKeyword} />
         </InputGroup>
         <Button
+          as={Link}
+          href="/service-report-generator"
           bg="black"
           size="sm"
           borderRadius={8}
           boxShadow="xs"
-          onClick={() => {
-            router.push("/service-report-generator");
-          }}
         >
           <Icon as={BiPlusCircle} color={"white"} />
           Generate Report

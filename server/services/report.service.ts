@@ -14,6 +14,7 @@ import customerReportRepository from "../repositories/customer-report.repository
 import serviceReportRepository from "../repositories/service-report.repository";
 import problemReportRepository from "../repositories/problem-report.repository";
 import partUsedReportRepository from "../repositories/part-used-report.repository";
+import { saveBase64Image } from "../utils/helpers/helper";
 
 class ReportService {
   async getReports(db: typeof dbConnection, query: any) {
@@ -101,9 +102,19 @@ class ReportService {
 
   async generateReport(db: typeof dbConnection, body: GenerateReportInput) {
     return db.transaction(async (trx) => {
+      const directorySignature = "uploads";
+      const filenameSignature = `signature-${Math.random().toString(36).substring(2, 15)}`;
+      let signaturePath = null;
+      if (body.signature) {
+          signaturePath = await saveBase64Image(body.signature, directorySignature, filenameSignature)
+          signaturePath = `/${directorySignature}/${filenameSignature}.png`;
+          if (!signaturePath) throw new Error("Failed to save signature");
+      }
+
       const customerReport =
         await customerReportRepository.createCustomerReport(trx, {
           ...body.customer,
+          signature: signaturePath ?? "",
         });
       if (!customerReport) throw new Error("Failed to create customer report");
 
@@ -116,31 +127,34 @@ class ReportService {
       );
       if (!serviceReport) throw new Error("Failed to create service report");
 
+      let problemReport = null;
       if (body.problem.problem == "" || body.problem.resolution == "") {
-        const problemReport = await problemReportRepository.createProblemReport(
-          trx,
-          {
-            customer_id: customerReport.id,
-            ...body.problem,
-          }
-        );
+        problemReport = await problemReportRepository.createProblemReport(trx, {
+          customer_id: customerReport.id,
+          ...body.problem,
+        });
         if (!problemReport) throw new Error("Failed to create problem report");
       }
 
-      const partUsedInput: PartUsedReportInput[] = body.partsUsed.map(
-        (part) => ({
-          customer_id: customerReport.id,
-          name: part.name,
-          quantity: part.quantity,
-          price: part.price ?? 0,
-        })
-      );
+      let partUsedReports = null;
+      if (body?.partsUsed && body.partsUsed.length > 0) {
+        const partUsedInput: PartUsedReportInput[] = body?.partsUsed?.map(
+          (part) => ({
+            customer_id: customerReport.id,
+            name: part.name,
+            quantity: part.quantity,
+            price: part.price ?? 0,
+          })
+        );
 
-      const partUsedReports =
-        await partUsedReportRepository.createPartUsedReport(trx, partUsedInput);
+        partUsedReports = await partUsedReportRepository.createPartUsedReport(
+          trx,
+          partUsedInput
+        );
 
-      if (partUsedInput.length !== partUsedReports.length)
-        throw new Error("Failed to create part used report");
+        if (partUsedInput.length !== partUsedReports.length)
+          throw new Error("Failed to create part used report");
+      }
 
       return {
         status: true,

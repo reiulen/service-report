@@ -12,7 +12,10 @@ import CustomerInformationFormStep from "./CustomerInformation/CustomerInformati
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { debounce } from "lodash";
-import { MutationValidateCustomer } from "@/services/useReportQuery";
+import {
+  MutationGenerateReport,
+  MutationValidateCustomer,
+} from "@/services/useReportQuery";
 import { GenerateReportInput } from "@/types/report";
 import { useLoadingStore } from "@/stores/loading/store";
 import ServiceDetailsFormStep from "./ServiceDetails/ServiceDetailsFormStep";
@@ -20,6 +23,10 @@ import ProblemFormStep from "./Problem/ProblemFormStep";
 import PartUsedFormStep from "./PartsUsed/PartUsedFormStep";
 import SignatureFormStep from "./Signatures/SiganatureFormStep";
 import PreviewFormStep from "./Previews/Preview";
+import { Toaster, toaster } from "../ui/toaster";
+import { useRouter } from "next/navigation";
+import SuccessGenerateFormStep from "./SuccessGenerateFormStep";
+import LoadingDialog from "../Loadings/LoadingDialog";
 
 const stepInfo = [
   "Customer Information",
@@ -31,8 +38,16 @@ const stepInfo = [
 ];
 
 const FormStep = () => {
-  const { step, nextStep, prevStep, setData, isLoaded, data } =
-    useFormStepStore();
+  const router = useRouter();
+  const {
+    step,
+    nextStep,
+    prevStep,
+    setData,
+    data,
+    resetData,
+    isLoadedStorage: isLoadingFormStep,
+  } = useFormStepStore();
   const { setLoading, isLoading } = useLoadingStore();
 
   const {
@@ -47,18 +62,17 @@ const FormStep = () => {
   } = useForm<GenerateReportInput>({
     defaultValues: {
       partsUsed: [
-        { 
+        {
           name: "",
-          quantity: 0, 
-          price: 0
-        }
+          quantity: 0,
+          price: 0,
+        },
       ],
     },
   });
 
   useEffect(() => {
     const debouncedSave = debounce((value: any) => {
-      console.log(value);
       const updatedValues = Object.fromEntries(
         Object.entries(value).filter(([_, v]) => v !== "" && v !== undefined)
       );
@@ -91,20 +105,34 @@ const FormStep = () => {
     }
   });
 
+  const { mutate: geenrateReport } = MutationGenerateReport({
+    onError: (error: any) => {
+      const errorsData = error.response?.data?.error;
+      if (!errorsData) return;
+      setLoading(false);
+    },
+    onSuccess: (data) => {
+      setLoading(false);
+      toaster.create({
+        title: "Success",
+        description:
+          "Data Laporan berhasil disimpan, silahkan cek di daftar laporan",
+        type: "success",
+        duration: 6000,
+      });
+      reset();
+      nextStep();
+    },
+  });
+
   const onSubmit = handleSubmit(() => {
-    console.log("submit");
+    setLoading(true);
+    geenrateReport(data);
   });
 
   useEffect(() => {
-    reset({
-      ...data,
-      service: {
-        ...data?.service,
-        type:
-          (data?.service?.type as unknown as { value: string })?.value ?? "",
-      },
-    });
-  }, [isLoaded, data, reset]);
+    reset(data);
+  }, [isLoading, data, reset]);
 
   const { mutate: validateCustomer } = MutationValidateCustomer({
     onError: (error: any) => {
@@ -154,7 +182,7 @@ const FormStep = () => {
       return;
     }
     nextStep();
-  }
+  };
 
   return (
     <Box bg="white" borderRadius={12} border="1px solid" borderColor="gray.200">
@@ -199,47 +227,60 @@ const FormStep = () => {
                   />
                 );
               case 4:
-                return <SignatureFormStep setValue={setValue} errors={errors} />;
+                return (
+                  <SignatureFormStep setValue={setValue} errors={errors} />
+                );
               case 5:
                 return <PreviewFormStep formData={data} />;
+              case 6:
+                return <SuccessGenerateFormStep />;
               default:
                 return <VStack>Step {step} not found</VStack>;
             }
           })()}
         </Group>
 
-        <Group p={8} justifyContent="end">
-          {step > 0 && (
-            <StepsPrevTrigger asChild>
-              <Button variant="outline" size="sm" onClick={prevStep}>
-                <IoArrowBack />
-                Sebelumnya
-              </Button>
-            </StepsPrevTrigger>
-          )}
-          <StepsNextTrigger asChild>
-            {step === stepInfo.length - 1 ? (
-              <Button variant="solid" size="sm" onClick={onSubmit}>
-                <IoSaveSharp />
-                Simpan &amp; Selesai
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                loading={isLoading}
-                onClick={() => {
-                  if (isLoading) return;
-                  onNextStep();
-                }}
-              >
-                Selanjutnya
-                <IoArrowForward />
-              </Button>
+        {step < stepInfo.length - 1 && (
+          <Group p={8} justifyContent="end">
+            {step > 0 && (
+              <StepsPrevTrigger asChild>
+                <Button variant="outline" size="sm" onClick={prevStep}>
+                  <IoArrowBack />
+                  Sebelumnya
+                </Button>
+              </StepsPrevTrigger>
             )}
-          </StepsNextTrigger>
-        </Group>
+            <StepsNextTrigger asChild>
+              {step === stepInfo.length - 1 ? (
+                <Button
+                  variant="solid"
+                  size="sm"
+                  loading={isLoading}
+                  onClick={onSubmit}
+                >
+                  <IoSaveSharp />
+                  Simpan Laporan
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  loading={isLoading}
+                  onClick={() => {
+                    if (isLoading) return;
+                    onNextStep();
+                  }}
+                >
+                  Selanjutnya
+                  <IoArrowForward />
+                </Button>
+              )}
+            </StepsNextTrigger>
+          </Group>
+        )}
       </StepsRoot>
+      <Toaster />
+      {!isLoadingFormStep && <LoadingDialog />}
     </Box>
   );
 };

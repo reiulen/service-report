@@ -34,7 +34,7 @@ export const generateReportSchema = z.object({
   service: serviceReportSchema,
   problem: problemReportSchema,
   partsUsed: z.array(partUsedReportSchema).optional(),
-  signature: z.string().regex(/^[A-Za-z0-9+/=]*$/, "Invalid base64 format"),
+  signature: z.string().regex(/^data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+/=]*$/, "formatnya base64"),
 });
 
 export const reportAllResponseSchema = z.object({

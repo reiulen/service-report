@@ -3,11 +3,12 @@ import { useLoadingStore } from "@/stores/loading/store";
 import { Box } from "@chakra-ui/react";
 import LoadingDialog from "../Loadings/LoadingDialog";
 import { useFormStepStore } from "@/stores/formSteps/stores";
+import { Toaster } from "@/components/ui/toaster"
 
 export default function AppLayout(props: { children: React.ReactNode }) {
     const { children } = props
     const { isLoading } = useLoadingStore()
-    const { isLoaded: isLoadingFormStep } = useFormStepStore();
+    const { isLoadedStorage: isLoadingFormStep } = useFormStepStore();
 
     return (
         <Box
@@ -24,8 +25,9 @@ export default function AppLayout(props: { children: React.ReactNode }) {
                 {children}
             </Box>
             {
-                (isLoading || (!isLoadingFormStep)) && <LoadingDialog />
+                isLoading && <LoadingDialog />
             }
+            <Toaster />
         </Box>
     )
 }
