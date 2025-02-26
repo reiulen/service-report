@@ -15,7 +15,7 @@ const LoadingDialog = () => {
             <DialogContent width="200px">
                 <VStack align="center" p={4} gap={4}>
                     <Spinner
-                        color="blue.500"
+                        color="black"
                         size="xl"
                     />
                     <Text fontSize="sm" color="gray.600">

@@ -1,8 +1,9 @@
 import { Field } from "@/components/ui/field";
 import { GenerateReportInput } from "@/types/report";
 import {
+  Box,
   GridItem,
-  Group,
+  Heading,
   Input,
   SimpleGrid,
   Textarea,
@@ -19,7 +20,18 @@ const CustomerInformationFormStep = ({
   errors,
 }: CustomerInformationFormStepProps) => {
   return (
-    <Group width={"full"}>
+    <Box width={"full"}>
+      <Heading  
+      _after={{
+        content: '""',
+        display: "block",
+        width: "12%",
+        height: "2px",
+        bg: "black",
+      }}
+      as="h3" size="md" mb={6}>
+        1. Informasi Pelanggan
+      </Heading>
       <SimpleGrid gap={6} columns={{ md: 3 }} alignItems={"top"} width={"full"}>
         <GridItem colSpan={1}>
           <Field
@@ -87,7 +99,7 @@ const CustomerInformationFormStep = ({
           </Field>
         </GridItem>
       </SimpleGrid>
-    </Group>
+    </Box>
   );
 };
 

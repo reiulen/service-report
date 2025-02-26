@@ -17,8 +17,13 @@ import partUsedReportRepository from "../repositories/part-used-report.repositor
 
 class ReportService {
   async getReports(db: typeof dbConnection, query: any) {
-    const [customerReports, totalData] = await customerReportRepository.findAll(db, query);
-    const collectCustomerIds = customerReports.map((report: ReportData) => report.id);
+    const [customerReports, totalData] = await customerReportRepository.findAll(
+      db,
+      query
+    );
+    const collectCustomerIds = customerReports.map(
+      (report: ReportData) => report.id
+    );
 
     const serviceReports = await serviceReportRepository.findWhere(
       db,
@@ -111,14 +116,16 @@ class ReportService {
       );
       if (!serviceReport) throw new Error("Failed to create service report");
 
-      const problemReport = await problemReportRepository.createProblemReport(
-        trx,
-        {
-          customer_id: customerReport.id,
-          ...body.problem,
-        }
-      );
-      if (!problemReport) throw new Error("Failed to create problem report");
+      if (body.problem.problem == "" || body.problem.resolution == "") {
+        const problemReport = await problemReportRepository.createProblemReport(
+          trx,
+          {
+            customer_id: customerReport.id,
+            ...body.problem,
+          }
+        );
+        if (!problemReport) throw new Error("Failed to create problem report");
+      }
 
       const partUsedInput: PartUsedReportInput[] = body.partsUsed.map(
         (part) => ({

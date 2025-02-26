@@ -33,7 +33,7 @@ export const generateReportSchema = z.object({
   customer: customerReportSchema,
   service: serviceReportSchema,
   problem: problemReportSchema,
-  partsUsed: z.array(partUsedReportSchema),
+  partsUsed: z.array(partUsedReportSchema).optional(),
   signature: z.string().regex(/^[A-Za-z0-9+/=]*$/, "Invalid base64 format"),
 });
 

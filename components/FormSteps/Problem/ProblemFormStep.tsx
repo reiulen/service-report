@@ -1,8 +1,10 @@
 import { Field } from "@/components/ui/field";
 import { GenerateReportInput } from "@/types/report";
 import {
+  Box,
   GridItem,
   Group,
+  Heading,
   Input,
   SimpleGrid,
   Textarea,
@@ -14,12 +16,23 @@ interface ProblemFormStepProps {
   errors: FieldErrors<GenerateReportInput>;
 }
 
-const ProblemFormStep = ({
-  register,
-  errors,
-}: ProblemFormStepProps) => {
+const ProblemFormStep = ({ register, errors }: ProblemFormStepProps) => {
   return (
-    <Group width={"full"}>
+    <Box width={"full"}>
+      <Heading
+        _after={{
+          content: '""',
+          display: "block",
+          width: "12%",
+          height: "2px",
+          bg: "black",
+        }}
+        as="h3"
+        size="md"
+        mb={6}
+      >
+        3. Deskripsi Masalah & Resolusi
+      </Heading>
       <SimpleGrid gap={6} columns={{ md: 2 }} alignItems={"top"} width={"full"}>
         <GridItem>
           <Field
@@ -29,7 +42,7 @@ const ProblemFormStep = ({
           >
             <Textarea
               placeholder="Masukkan masalah"
-              {...register("problem.problem", { })}
+              {...register("problem.problem", {})}
             />
           </Field>
         </GridItem>
@@ -46,7 +59,7 @@ const ProblemFormStep = ({
           </Field>
         </GridItem>
       </SimpleGrid>
-    </Group>
+    </Box>
   );
 };
 

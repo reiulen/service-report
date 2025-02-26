@@ -2,9 +2,11 @@ import { Field } from "@/components/ui/field";
 import { InputGroup } from "@/components/ui/input-group";
 import { GenerateReportInput } from "@/types/report";
 import {
+  Box,
   createListCollection,
   GridItem,
   Group,
+  Heading,
   Input,
   InputAddon,
   NumberInputRoot,
@@ -31,12 +33,6 @@ interface ServiceDetailsFormStepProps {
   register: UseFormRegister<GenerateReportInput>;
   errors: FieldErrors<GenerateReportInput>;
 }
-
-type ValueSelect = {
-  items: any;
-  value: string[];
-};
-
 type ServiceType = {
   items: {
     label: string;
@@ -59,7 +55,21 @@ const ServiceDetailsFormStep = ({
   errors,
 }: ServiceDetailsFormStepProps) => {
   return (
-    <Group width={"full"}>
+    <Box width={"full"}>
+      <Heading
+        _after={{
+          content: '""',
+          display: "block",
+          width: "12%",
+          height: "2px",
+          bg: "black",
+        }}
+        as="h3"
+        size="md"
+        mb={6}
+      >
+        2. Detail Layanan
+      </Heading>
       <SimpleGrid gap={6} columns={{ md: 3 }} alignItems={"top"} width={"full"}>
         <GridItem colSpan={1}>
           <Field
@@ -138,7 +148,7 @@ const ServiceDetailsFormStep = ({
           </Field>
         </GridItem>
       </SimpleGrid>
-    </Group>
+    </Box>
   );
 };
 

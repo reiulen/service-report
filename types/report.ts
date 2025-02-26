@@ -14,7 +14,7 @@ export type GenerateReportInput = {
     problem?: string;
     resolution?: string;
   };
-  partsUsed: {
+  partsUsed?: {
     name: string;
     quantity: number;
     price?: number;

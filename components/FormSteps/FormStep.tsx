@@ -17,6 +17,7 @@ import { GenerateReportInput } from "@/types/report";
 import { useLoadingStore } from "@/stores/loading/store";
 import ServiceDetailsFormStep from "./ServiceDetails/ServiceDetailsFormStep";
 import ProblemFormStep from "./Problem/ProblemFormStep";
+import PartUsedFormStep from "./PartsUsed/PartUsedFormStep";
 
 const stepInfo = [
   "Customer Information",
@@ -27,7 +28,8 @@ const stepInfo = [
 ];
 
 const FormStep = () => {
-  const { step, nextStep, prevStep, setData, isLoaded, data } = useFormStepStore();
+  const { step, nextStep, prevStep, setData, isLoaded, data } =
+    useFormStepStore();
   const { setLoading, isLoading } = useLoadingStore();
 
   const {
@@ -38,8 +40,18 @@ const FormStep = () => {
     formState: { errors },
     watch,
     setError,
-    control
-  } = useForm<GenerateReportInput>();
+    control,
+  } = useForm<GenerateReportInput>({
+    defaultValues: {
+      partsUsed: [
+        { 
+          name: "",
+          quantity: 0, 
+          price: 0
+        }
+      ],
+    },
+  });
 
   useEffect(() => {
     const debouncedSave = debounce((value: any) => {
@@ -82,24 +94,26 @@ const FormStep = () => {
       ...data,
       service: {
         ...data?.service,
-        type: data?.service?.type?.value || "",
+        type:
+          (data?.service?.type as unknown as { value: string })?.value ?? "",
       },
     });
   }, [isLoaded, data, reset]);
 
-  const {
-    mutate: validateCustomer,
-  } = MutationValidateCustomer({
+  const { mutate: validateCustomer } = MutationValidateCustomer({
     onError: (error: any) => {
       const errorsData = error.response?.data?.error;
       if (!errorsData) return;
 
       Object.entries(errorsData).forEach(([key, messages]) => {
         if (Array.isArray(messages) && messages.length > 0) {
-          setError(`customer.${key}` as `customer.${keyof GenerateReportInput["customer"]}`, {
-            type: "manual",
-            message: messages[0],
-          });
+          setError(
+            `customer.${key}` as `customer.${keyof GenerateReportInput["customer"]}`,
+            {
+              type: "manual",
+              message: messages[0],
+            }
+          );
         }
       });
       setLoading(false);
@@ -107,7 +121,7 @@ const FormStep = () => {
     onSuccess: (data) => {
       nextStep();
       setLoading(false);
-    }
+    },
   });
 
   const handleNextStepCustomer = async () => {
@@ -121,9 +135,9 @@ const FormStep = () => {
       name,
       email,
       phone,
-      address
+      address,
     });
-  }
+  };
 
   return (
     <Box bg="white" borderRadius={12} border="1px solid" borderColor="gray.200">
@@ -143,55 +157,63 @@ const FormStep = () => {
           {(() => {
             switch (step) {
               case 0:
-                return <CustomerInformationFormStep
-                  register={register}
-                  errors={errors}
-                />;
+                return (
+                  <CustomerInformationFormStep
+                    register={register}
+                    errors={errors}
+                  />
+                );
               case 1:
-                return <ServiceDetailsFormStep
-                  control={control}
-                  register={register}
-                  errors={errors}
-                />
+                return (
+                  <ServiceDetailsFormStep
+                    control={control}
+                    register={register}
+                    errors={errors}
+                  />
+                );
               case 2:
-                return <ProblemFormStep
-                  register={register}
-                  errors={errors}
-                />
+                return <ProblemFormStep register={register} errors={errors} />;
+              case 3:
+                return (
+                  <PartUsedFormStep
+                    control={control}
+                    register={register}
+                    errors={errors}
+                  />
+                );
             }
           })()}
         </Group>
 
         <Group p={8} justifyContent="end">
-          {
-            step > 0 && (
-              <StepsPrevTrigger asChild>
-                <Button variant="outline" size="sm" onClick={prevStep}>
-                  <IoArrowBack />
-                  Sebelumnya
-                </Button>
-              </StepsPrevTrigger>
-            )
-          }
+          {step > 0 && (
+            <StepsPrevTrigger asChild>
+              <Button variant="outline" size="sm" onClick={prevStep}>
+                <IoArrowBack />
+                Sebelumnya
+              </Button>
+            </StepsPrevTrigger>
+          )}
           <StepsNextTrigger asChild>
-            {
-              step === stepInfo.length - 1 ? (
-                <Button variant="solid" size="sm" onClick={onSubmit}>
-                  <IoSaveSharp />
-                  Simpan &amp; Selesai
-                </Button>
-              ) : (
-                <Button variant="outline" size="sm"
-                  loading={isLoading}
-                  onClick={() => {
-                    if (isLoading) return;
-                    onNextStep();
-                  }}>
-                  Selanjutnya
-                  <IoArrowForward />
-                </Button>
-              )
-            }
+            {step === stepInfo.length - 1 ? (
+              <Button variant="solid" size="sm" onClick={onSubmit}>
+                <IoSaveSharp />
+                Simpan &amp; Selesai
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                loading={isLoading}
+                onClick={() => {
+                  if (isLoading) return;
+                  onNextStep();
+                }}
+              >
+                Selanjutnya
+                <IoArrowForward />
+              </Button>
+            )}
           </StepsNextTrigger>
         </Group>
       </StepsRoot>
