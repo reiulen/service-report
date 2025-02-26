@@ -96,7 +96,7 @@ export type ServiceReport = {
 
 export type ProblemReportInput = {
   customer_id: string;
-  problem: string;
+  problem?: string;
   resolution?: string;
   created_by_user_id?: string;
 };

@@ -19,7 +19,7 @@ export const serviceReportSchema = z.object({
 });
 
 export const problemReportSchema = z.object({
-  problem: z.string(),
+  problem: z.string().optional(),
   resolution: z.string().optional(),
 });
 
